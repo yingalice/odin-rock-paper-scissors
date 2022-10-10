@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Gruppo&family=Montserrat+Alternates:wght@200&display=swap');
+
+:root {
+  --purple-pink: #d6a6e5;
+}
+
+html {
+  position: relative;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 800px;
+  height: 100vh;
+  color: ghostwhite;
+  background-image: linear-gradient(to right, #2b5876, #4e4376);
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-weight: 200;
+  text-align: center;
+}
+
+img {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.header {
+  overflow: hidden;
+  padding: 1rem 0;
+  font-family: 'Gruppo', cursive;
+  font-size: 2rem;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 2px 2px 5px var(--purple-pink);
+}
+
+.score {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.score__player,
+.score__computer {
+  width: 8rem;
+  padding: 0.5rem;
+  border: 1px solid white;
+  border-radius: 4px;
+  box-shadow: 10px 10px 20px -10px var(--purple-pink);
+  text-align: center;
+}
+
+.score__player-label,
+.score__computer-label {
+  color: black;
+  background-color: lightskyblue;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.2rem;
+  border-radius: 4px;
+}
+
+.score__player-counter,
+.score__computer-counter {
+  color: lightskyblue;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.main {
+  margin: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  background-color: rgba(131, 146, 212, 0.3);
+  padding: 1rem;
+  border: 2px solid white;
+  border-radius: 16px;
+  box-shadow: 20px 20px 20px -10px var(--purple-pink);
+}
+
+.main--skinny {
+  width: max-content;
+}
+
+.rules__list {
+  margin: 1rem 0;
+  list-style-type: none;
+}
+
+.rules__list li:last-child {
+  color: lightskyblue;
+  margin-top: 1rem;
+}
+
+.weapons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.weapons__btn {
+  cursor: pointer;
+  transition: all 200ms;
+}
+
+.weapons__btn:hover {
+  scale: 1.1;
+}
+
+.results {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.results__computer {
+  transform: scaleX(-1);
+}
+
+.main__text {
+  margin-top: 1.2rem;
+  font-size: 1.2rem;
+  line-height: 1.2rem;
+}
+
+.main__text--large {
+  font-size: 2rem;
+}
+
+.main__text:empty::before {
+  content: '\200b';
+}
+
+.main__text--default::before {
+  content: 'Choose your weapon';
+}
+
+.btn {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: bold;
+  padding: 0.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.btn__next-round,
+.btn__new-game:hover {
+  color: black;
+  background-color: white;
+  border: 2px solid black;
+}
+
+.btn__next-round:hover,
+.btn__new-game {
+  color: white;
+  background-color: black;
+  border: 2px solid white;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  color: black;
+  background-color: lightskyblue;
+  font-weight: bold;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.footer__link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.footer__link:hover {
+  color:cornflowerblue;
+}
+
+.hide {
+  display: none;
+}
+
+.fade-in {
+  animation: fade-in 2s;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.shake {
+  animation: shake 100ms;
+}
+
+@keyframes shake {
+  0%,
+  50% {
+    rotate: 2deg;
+  }
+  25%,
+  100% {
+    rotate: -2deg;
+  }
+}
+
+.slide-up {
+  animation: slide-up 800ms;
+}
+
+@keyframes slide-up {
+  0%,
+  60% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  70%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.zoom-out {
+  will-change: transform;
+  animation: zoom-out 300ms ease-in;
+}
+
+@keyframes zoom-out {
+  0% {
+    transform: scale(3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(0.25);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

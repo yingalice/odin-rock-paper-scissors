@@ -1,12 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://kit.fontawesome.com/602d755a29.js" crossorigin="anonymous"></script>
     <title>Rock Paper Scissors</title>
-    <script src="script.js"></script>
+    <link rel="icon" type="image/x-icon" href="/img/rock-paper-scissors.png" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
   </head>
-  <body> 
+
+  <body>
+    <header class="header">
+      <h1 class="header__title">Rock Paper Scissors</h1>
+    </header>
+
+    <div class="score">
+      <div class="score__player">
+        <p class="score__player-label">Player</p>
+        <p class="score__player-counter">0</p>
+      </div>
+      <div class="score__computer">
+        <p class="score__computer-label">Computer</p>
+        <p class="score__computer-counter">0</p>
+      </div>
+    </div>
+
+    <div class="main main--skinny">
+      <div class="main__container">
+        <div class="rules">
+          <h1 class="rules__title">Rules</h1>
+          <ul class="rules__list">
+            <li class="rules__item">Rock beats scissors</li>
+            <li class="rules__item">Paper beats rock</li>
+            <li class="rules__item">Scissors beats paper</li>
+            <li class="rules__item">First to 5 wins!</li>
+          </ul>
+          <img
+            class="rules__img"
+            src="img/rock-paper-scissors.png"
+            alt="rock paper scissors"
+          />
+        </div>
+
+        <div class="weapons hide">
+          <img class="weapons__btn" id="rock" src="img/rock.png" alt="rock" />
+          <img class="weapons__btn" id="paper" src="img/paper.png" alt="paper" />
+          <img class="weapons__btn" id="scissors" src="img/scissors.png" alt="scissors" />
+        </div>
+
+        <div class="results hide">
+          <img class="results__player" src="" alt="" />
+          <button class="btn btn__next-round">Next Round</button>
+          <img class="results__computer" src="" alt="" />
+        </div>
+
+        <p class="main__text hide"></p>
+
+        <button class="btn btn__new-game">Start Game</button>
+      </div>
+    </div>
+
+    <div class="sounds">
+      <audio id="weapon-hover" src="audio/weapon-hover.wav"></audio>
+      <audio id="round-won" src="audio/round-won.wav"></audio>
+      <audio id="round-lost" src="audio/round-lost.wav"></audio>
+      <audio id="round-tie" src="audio/round-tie.wav"></audio>
+      <audio id="game-won" src="audio/game-won.wav"></audio>
+      <audio id="game-lost" src="audio/game-lost.wav"></audio>
+    </div>
+
+    <footer class="footer">
+      <p class="footer__copyright">Copyright &copy; 2022 by
+        <a class="footer__link" href="https://github.com/yingalice" target="_blank">yingalice</a>
+        <i class="fa-brands fa-github"></i>
+      </p>
+    </footer>
   </body>
 </html>
