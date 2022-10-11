@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Gruppo&family=Montserrat+Alternates:wght@200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@200&display=swap');
 
 :root {
   --purple-pink: #d6a6e5;
 }
 
 html {
-  position: relative;
   box-sizing: border-box;
 }
 
@@ -18,14 +17,15 @@ html {
 }
 
 body {
-  margin: 0 auto;
-  max-width: 800px;
-  height: 100vh;
-  color: ghostwhite;
+  color: white;
   background-image: linear-gradient(to right, #2b5876, #4e4376);
   font-family: 'Montserrat Alternates', sans-serif;
   font-weight: 200;
   text-align: center;
+  margin: 0 auto;
+  margin-bottom: 4rem;
+  min-height: 100%;
+  max-width: 900px;
 }
 
 img {
@@ -34,10 +34,8 @@ img {
 }
 
 .header {
-  overflow: hidden;
-  padding: 1rem 0;
-  font-family: 'Gruppo', cursive;
-  font-size: 2rem;
+  margin: 1rem 0;
+  font-size: 1.5rem;
   text-transform: uppercase;
   text-align: center;
   text-shadow: 2px 2px 5px var(--purple-pink);
@@ -47,7 +45,7 @@ img {
   display: flex;
   justify-content: center;
   gap: 1.5rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
 }
 
 .score__player,
@@ -79,11 +77,10 @@ img {
 }
 
 .main {
-  margin: inherit;
+  margin: 1.5rem auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow: hidden;
   background-color: rgba(131, 146, 212, 0.3);
   padding: 1rem;
   border: 2px solid white;
@@ -93,6 +90,24 @@ img {
 
 .main--skinny {
   width: max-content;
+}
+
+.main__text {
+  margin-top: 1.2rem;
+  font-size: 1.2rem;
+  line-height: 1.2rem;
+}
+
+.main__text--large {
+  font-size: 2rem;
+}
+
+.main__text:empty::before {
+  content: '\200b';
+}
+
+.main__text--default::before {
+  content: 'Choose your weapon';
 }
 
 .rules__list {
@@ -131,24 +146,6 @@ img {
   transform: scaleX(-1);
 }
 
-.main__text {
-  margin-top: 1.2rem;
-  font-size: 1.2rem;
-  line-height: 1.2rem;
-}
-
-.main__text--large {
-  font-size: 2rem;
-}
-
-.main__text:empty::before {
-  content: '\200b';
-}
-
-.main__text--default::before {
-  content: 'Choose your weapon';
-}
-
 .btn {
   font-family: inherit;
   font-size: inherit;
@@ -172,16 +169,71 @@ img {
   border: 2px solid white;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
+table {
+  font-size: 0.9rem;
+  border: 1px solid white;
+  border-spacing: 0;
+  border-radius: 4px;
+  margin: 2rem auto 0;
+  width: 100%;
+}
+
+thead,
+tbody,
+th,
+tr,
+td {
+  display: block;
+}
+
+tr::after {
+  content: ' ';
+  display: block;
+  visibility: hidden;
+  clear: both;
+}
+
+thead {
   color: black;
   background-color: lightskyblue;
+  font-size: 1rem;
+}
+
+tbody td, thead th {
+  width: 25%;
+  float: left;
+}
+
+thead:first-of-type {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+tr:last-of-type {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+tr:nth-child(even) {
+  background-color:rgba(248, 219, 248, 0.315);
+}
+
+tbody tr:hover {
+  background-color: black;
+  font-weight: bold;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  color: black;
+  background-color: lightskyblue;
+  font-size: 0.8rem;
   font-weight: bold;
   text-align: center;
-  padding: 16px 0;
+  padding: 8px 0;
+  width: 100%;
 }
 
 .footer__link {

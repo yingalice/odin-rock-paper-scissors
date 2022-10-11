@@ -1,16 +1,19 @@
 'use strict';
 let score = { player: 0, computer: 0 };
+let round = 0;
 let weaponsVisible = true;
 let showChooseWeaponText;
 
 const weaponBtns = document.querySelector('.weapons');
 const nextRoundBtn = document.querySelector('.btn__next-round');
 const newGameBtn = document.querySelector('.btn__new-game');
+const main = document.querySelector('.main');
 const mainContainer = document.querySelector('.main__container');
 const mainText = document.querySelector('.main__text');
 const resultsPanel = document.querySelector('.results');
 const playerScoreCounter = document.querySelector('.score__player-counter');
 const computerScoreCounter = document.querySelector('.score__computer-counter');
+let table;
 
 weaponBtns.addEventListener('mouseover', respondHoverWeapon);
 weaponBtns.addEventListener('mouseout', respondNotHoverWeapon);
@@ -35,36 +38,46 @@ function showChooseWeapon() {
 }
 
 function getComputerChoice() {
-  let choices = ['rock', 'paper', 'scissors'];
+  const choices = ['rock', 'paper', 'scissors'];
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
 function playRound(playerChoice, computerChoice) {
-  let winner;
+  let outcome;
   weaponsVisible = false;
-
+  
   if (playerChoice === computerChoice) {
-    winner = null;
+    outcome = 'tie';
   } else if (
     (playerChoice === 'rock' && computerChoice === 'scissors') ||
     (playerChoice === 'paper' && computerChoice === 'rock') ||
     (playerChoice === 'scissors' && computerChoice === 'paper')
-  ) {
-    winner = 'player';
-    score.player++;
-  } else {
-    winner = 'computer';
-    score.computer++;
-  }
+    ) {
+      outcome = 'win';
+      score.player++;
+    } else {
+      outcome = 'lose';
+      score.computer++;
+    }
+    round++;
+
+  const roundResult = {
+    round: round,
+    player: playerChoice,
+    computer: computerChoice,
+    outcome: outcome,
+  };
 
   if (!isGameOver()) {
-    showRoundResult(winner, playerChoice, computerChoice);
+    showRoundResult(outcome, playerChoice, computerChoice);
   } else {
-    showGameResult(winner);
+    showGameResult(outcome);
   }
+  table || createTable();
+  addTableRow(roundResult);
 }
 
-function showRoundResult(winner, playerChoice, computerChoice) {
+function showRoundResult(outcome, playerChoice, computerChoice) {
   const playerImg = resultsPanel.querySelector('.results__player');
   const computerImg = resultsPanel.querySelector('.results__computer');
 
@@ -78,25 +91,24 @@ function showRoundResult(winner, playerChoice, computerChoice) {
   computerImg.setAttribute('src', `img/${computerChoice}.png`);
   computerImg.setAttribute('alt', `computer's choice: ${computerChoice}`);
 
-  switch (winner) {
-    case 'player':
+  switch (outcome) {
+    case 'win':
       updateScoreCounter('player', score.player);
       playAudio('round-won');
       updateMsg(`You win! ${capitalize(playerChoice)} beats ${computerChoice}.`);
       break;
-    case 'computer':
+    case 'lose':
       updateScoreCounter('computer', score.computer);
       playAudio('round-lost');
       updateMsg(`You lose! ${capitalize(computerChoice)} beats ${playerChoice}.`);
       break;
-    default:
+    case 'tie':
       playAudio('round-tie');
       updateMsg(`You tied!  Both chose ${playerChoice}.`);
   }
 }
 
-function showGameResult(winner) {
-  let main = document.querySelector('.main');
+function showGameResult(outcome) {
   main.style.height = `${main.offsetHeight}px`;
 
   hideElements(weaponBtns);
@@ -104,14 +116,14 @@ function showGameResult(winner) {
   playAnimation(mainContainer, 'zoom-out');
   mainText.classList.add('main__text--large');
 
-  switch (winner) {
-    case 'player':
+  switch (outcome) {
+    case 'win':
       updateScoreCounter('player', score.player);
       playAudio('game-won');
       updateMsg(`HOORAY!  You win!`);
       newGameBtn.textContent = 'Play Again?';
       break;
-    case 'computer':
+    case 'lose':
       updateScoreCounter('computer', score.computer);
       playAudio('game-lost');
       updateMsg(`OH NO!  You lose!`);
@@ -130,13 +142,62 @@ function playAudio(id) {
 }
 
 function updateScoreCounter(user, score) {
-  let node = user === 'player' ? playerScoreCounter : computerScoreCounter;
+  const node = user === 'player' ? playerScoreCounter : computerScoreCounter;
   node.textContent = score;
   playAnimation(node, 'slide-up');
 }
 
 function isGameOver() {
   return score.player === 5 || score.computer === 5 ? true : false;
+}
+
+//Table
+function createTable() {
+  const tableHeaders = ['Round', 'Player', 'Computer', 'Outcome'];
+  const footer = document.querySelector('.footer');
+
+  table = document.createElement('table');
+  // document.body.insertBefore(table, footer)
+  document.querySelector('.table__container').appendChild(table);
+  const thead = table.createTHead();
+  const row = thead.insertRow();
+
+  for (const header of tableHeaders) {
+    const th = document.createElement('th');
+    th.textContent = header;
+    row.appendChild(th);
+  }
+}
+
+function addTableRow(data) {
+  const tbody = table.querySelector('tbody') || table.createTBody();
+  const row = tbody.insertRow();
+  for (const key in data) {
+    const cell = row.insertCell();
+    cell.textContent = key === 'outcome' ? showIcon(data[key]) : data[key];
+  }
+  tbody.insertBefore(row, tbody.firstChild);
+
+  function showIcon(outcome) {
+    switch (outcome) {
+      case 'win':
+        return '\u2713';
+      case 'lose':
+        return '\u2717';
+      case 'tie':
+        return '\u2014';
+    }
+  }
+}
+
+function deleteTable() {
+  if (!table) return;
+  table.parentNode.removeChild(table);
+  table = null;
+  // table.deleteTHead();
+  // while(table.rows.length > 0) {
+  //   table.deleteRow(0);
+  // }
 }
 
 // Utility
@@ -196,18 +257,23 @@ function respondClickNextRound() {
 }
 
 function respondClickNewGame() {
-  const main = document.querySelector('.main');
-  const score = document.querySelector('.score');
+  const scoreCounter = document.querySelector('.score');
   const rulesPanel = document.querySelector('.rules');
 
   main.classList.remove('main--skinny');
   playAnimation(main, 'fade-in');
   hideElements(rulesPanel, newGameBtn);
   showElements(mainText);
-  showChooseWeapon();
 
-  updateScoreCounter('player', (score.player = 0));
-  updateScoreCounter('computer', (score.computer = 0));
+  score.player = 0;
+  score.computer = 0;
+  round = 0;
+
+  deleteTable();
+  updateScoreCounter('player', score.player);
+  updateScoreCounter('computer', score.computer);
   playAnimation(main, 'shake');
-  playAnimation(score, 'shake');
+  playAnimation(scoreCounter, 'shake');
+  
+  showChooseWeapon();
 }
