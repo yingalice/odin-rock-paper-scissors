@@ -1,7 +1,7 @@
 'use strict';
 let score = { player: 0, computer: 0 };
 let round = 0;
-let weaponsVisible = true;
+let scheduled = null;
 let showChooseWeaponText;
 
 const weaponBtns = document.querySelector('.weapons');
@@ -20,66 +20,27 @@ weaponBtns.addEventListener('mouseout', respondNotHoverWeapon);
 weaponBtns.addEventListener('click', respondClickWeapon);
 nextRoundBtn.addEventListener('click', respondClickNextRound);
 newGameBtn.addEventListener('click', respondClickNewGame);
-document.addEventListener('animationend', (e) => {
-  e.target.classList.remove(e.animationName);
-});
+window.addEventListener('keydown', respondKeydown);
+window.addEventListener('keydown', respondDisableSpacebarScroll);
+document.addEventListener('animationend', respondRemoveAnimation);
 
 // Core logic
 function showChooseWeapon() {
-  weaponsVisible = true;
+  main.dataset.screen = 'choose-weapon';
 
   showElements(weaponBtns);
   hideElements(resultsPanel, nextRoundBtn);
 
-  // playAnimation(mainText, 'fade-in');
+  playAnimation(mainText, 'fade-in');
   mainText.textContent = '\u200b';
   mainText.classList.add('main__text--default');
   mainText.classList.remove('main__text--large');
 }
 
-function getComputerChoice() {
-  const choices = ['rock', 'paper', 'scissors'];
-  return choices[Math.floor(Math.random() * choices.length)];
-}
-
-function playRound(playerChoice, computerChoice) {
-  let outcome;
-  weaponsVisible = false;
-  
-  if (playerChoice === computerChoice) {
-    outcome = 'tie';
-  } else if (
-    (playerChoice === 'rock' && computerChoice === 'scissors') ||
-    (playerChoice === 'paper' && computerChoice === 'rock') ||
-    (playerChoice === 'scissors' && computerChoice === 'paper')
-    ) {
-      outcome = 'win';
-      score.player++;
-    } else {
-      outcome = 'lose';
-      score.computer++;
-    }
-    round++;
-
-  const roundResult = {
-    round: round,
-    player: playerChoice,
-    computer: computerChoice,
-    outcome: outcome,
-  };
-
-  if (!isGameOver()) {
-    showRoundResult(outcome, playerChoice, computerChoice);
-  } else {
-    showGameResult(outcome);
-  }
-  table || createTable();
-  addTableRow(roundResult);
-}
-
 function showRoundResult(outcome, playerChoice, computerChoice) {
   const playerImg = resultsPanel.querySelector('.results__player');
   const computerImg = resultsPanel.querySelector('.results__computer');
+  main.dataset.screen = 'round-result';
 
   hideElements(weaponBtns);
   showElements(resultsPanel, nextRoundBtn);
@@ -110,6 +71,7 @@ function showRoundResult(outcome, playerChoice, computerChoice) {
 
 function showGameResult(outcome) {
   main.style.height = `${main.offsetHeight}px`;
+  main.dataset.screen = 'game-result';
 
   hideElements(weaponBtns);
   showElements(newGameBtn);
@@ -131,6 +93,46 @@ function showGameResult(outcome) {
   }
 }
 
+function playRound(playerChoice, computerChoice) {
+  let outcome;
+
+  if (playerChoice === computerChoice) {
+    outcome = 'tie';
+  } else if (
+    (playerChoice === 'rock' && computerChoice === 'scissors') ||
+    (playerChoice === 'paper' && computerChoice === 'rock') ||
+    (playerChoice === 'scissors' && computerChoice === 'paper')
+    ) {
+      outcome = 'win';
+      score.player++;
+    } else {
+      outcome = 'lose';
+      score.computer++;
+    }
+    round++;
+
+  const roundResult = {
+    round: round,
+    player: playerChoice,
+    computer: computerChoice,
+    outcome: outcome,
+  };
+
+  mainText.classList.remove('main__text--default');
+  if (!isGameOver()) {
+    showRoundResult(outcome, playerChoice, computerChoice);
+  } else {
+    showGameResult(outcome);
+  }
+  table || createTable();
+  addTableRow(roundResult);
+}
+
+function getComputerChoice() {
+  const choices = ['rock', 'paper', 'scissors'];
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
 function updateMsg(msg) {
   mainText.innerHTML = msg;
 }
@@ -142,7 +144,7 @@ function playAudio(id) {
 }
 
 function updateScoreCounter(user, score) {
-  const node = user === 'player' ? playerScoreCounter : computerScoreCounter;
+  const node = (user === 'player') ? playerScoreCounter : computerScoreCounter;
   node.textContent = score;
   playAnimation(node, 'slide-up');
 }
@@ -157,8 +159,7 @@ function createTable() {
   const footer = document.querySelector('.footer');
 
   table = document.createElement('table');
-  // document.body.insertBefore(table, footer)
-  document.querySelector('.table__container').appendChild(table);
+  document.querySelector('.table').appendChild(table);
   const thead = table.createTHead();
   const row = thead.insertRow();
 
@@ -174,16 +175,16 @@ function addTableRow(data) {
   const row = tbody.insertRow();
   for (const key in data) {
     const cell = row.insertCell();
-    cell.textContent = key === 'outcome' ? showIcon(data[key]) : data[key];
+    cell.innerHTML = key === 'outcome' ? showIcon(data[key]) : data[key];
   }
   tbody.insertBefore(row, tbody.firstChild);
 
   function showIcon(outcome) {
     switch (outcome) {
       case 'win':
-        return '\u2713';
+        return '<span style="color: lime;">\u2713</span>';
       case 'lose':
-        return '\u2717';
+        return '<span style="color: red;">\u2717</span>';
       case 'tie':
         return '\u2014';
     }
@@ -194,10 +195,6 @@ function deleteTable() {
   if (!table) return;
   table.parentNode.removeChild(table);
   table = null;
-  // table.deleteTHead();
-  // while(table.rows.length > 0) {
-  //   table.deleteRow(0);
-  // }
 }
 
 // Utility
@@ -226,15 +223,75 @@ function playAnimation(node, animationClassName) {
 function respondClickWeapon(e) {
   if (e.target.matches('img')) {
     clearTimeout(showChooseWeaponText);
-    let playerChoice = e.target.id;
+    const playerChoice = e.target.id;
     playRound(playerChoice, getComputerChoice());
   }
+}
+
+function respondKeydown(e) {
+  const screen = main.dataset.screen;
+  const keyPress = e.code;
+
+  if (keyPress !== 'KeyJ' &&
+      keyPress !== 'KeyK' &&
+      keyPress !== 'KeyL' &&
+      keyPress !== 'Space') return;
+  if (scheduled) return;  // Prevent multiple keypress from playing extra rounds
+
+  switch (screen) {
+    case 'welcome':
+    case 'game-result':
+      if (keyPress !== 'Space') return;
+      simulateHoverClick(100,
+                        newGameBtn, 
+                        'btn__new-game--kbd',
+                        respondClickNewGame);
+      break;
+    case 'choose-weapon':
+      const playerChoice = keyPress === 'KeyJ' ? 'rock' : 
+                         keyPress === 'KeyK' ? 'paper' :
+                         keyPress === 'KeyL' ? 'scissors' :
+                         null;
+      if (!playerChoice) return;
+      const weaponImg = document.querySelector(`#${playerChoice}`);
+      simulateHoverClick(200,
+                        weaponImg,
+                        'weapons__btn--kbd',
+                        playRound, playerChoice, getComputerChoice());
+      break;
+    case 'round-result':
+      if (keyPress !== 'Space') return;
+      simulateHoverClick(100,
+                        nextRoundBtn,
+                        'btn__next-round--kbd',
+                        respondClickNextRound);
+      break;
+    default:
+      console.error(`Error: Unknown screen: ${screen}`);
+  }
+
+  function simulateHoverClick(timeout, node, cls, callback, ...callbackArgs) {
+    const evtMouseover = new MouseEvent('mouseover', { bubbles: true });
+
+    scheduled = true;
+    node.dispatchEvent(evtMouseover);
+    node.classList.add(cls);
+    setTimeout(() => {
+      node.classList.remove(cls);
+      callback(...callbackArgs);
+      scheduled = null;
+    }, timeout);
+  }
+}
+
+function respondDisableSpacebarScroll(e) {
+  if (e.code === 'Space') e.preventDefault();
 }
 
 function respondHoverWeapon(e) {
   if (e.target.matches('img')) {
     clearTimeout(showChooseWeaponText);
-    let playerChoice = e.target.id;
+    const playerChoice = e.target.id;
     mainText.classList.remove('main__text--default');
     mainText.textContent = playerChoice.toUpperCase();
     playAudio('weapon-hover');
@@ -242,7 +299,8 @@ function respondHoverWeapon(e) {
 }
 
 function respondNotHoverWeapon(e) {
-  if (e.target.matches('img') && weaponsVisible) {
+  if (main.dataset.screen !== 'choose-weapon') return;
+  if (e.target.matches('img')) {
     showChooseWeaponText = setTimeout(() => {
       mainText.classList.add('main__text--default');
       playAnimation(mainText, 'fade-in');
@@ -258,11 +316,11 @@ function respondClickNextRound() {
 
 function respondClickNewGame() {
   const scoreCounter = document.querySelector('.score');
-  const rulesPanel = document.querySelector('.rules');
+  const welcomePanel = document.querySelector('.welcome');
 
   main.classList.remove('main--skinny');
   playAnimation(main, 'fade-in');
-  hideElements(rulesPanel, newGameBtn);
+  hideElements(welcomePanel, newGameBtn);
   showElements(mainText);
 
   score.player = 0;
@@ -276,4 +334,8 @@ function respondClickNewGame() {
   playAnimation(scoreCounter, 'shake');
   
   showChooseWeapon();
+}
+
+function respondRemoveAnimation(e) {
+    e.target.classList.remove(e.animationName);
 }

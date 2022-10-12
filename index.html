@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://kit.fontawesome.com/602d755a29.js" crossorigin="anonymous"></script>
     <title>Rock Paper Scissors</title>
-    <link rel="icon" type="image/x-icon" href="/img/rock-paper-scissors.png" />
+    <link rel="icon" type="image/x-icon" href="/img/rps.png" />
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
   </head>
@@ -15,7 +15,7 @@
     <header class="header">
       <h1 class="header__title">Rock Paper Scissors</h1>
     </header>
-    
+
     <div class="score">
       <div class="score__player">
         <p class="score__player-label">Player</p>
@@ -27,21 +27,23 @@
       </div>
     </div>
 
-    <div class="main main--skinny">
+    <div class="main main--skinny" data-screen="welcome">
       <div class="main__container">
-        <div class="rules">
-          <h1 class="rules__title">Rules</h1>
-          <ul class="rules__list">
-            <li class="rules__item">Rock beats scissors</li>
-            <li class="rules__item">Paper beats rock</li>
-            <li class="rules__item">Scissors beats paper</li>
-            <li class="rules__item">First to 5 wins!</li>
+        <div class="welcome">
+          <h1 class="welcome__title">Welcome</h1>
+          <h2 class="welcome__subtitle">Rules</h2>
+          <ul class="welcome__list">
+            <li>First to 5 wins!</li>
+            <li>Rock beats scissors</li>
+            <li>Paper beats rock</li>
+            <li>Scissors beats paper</li>
           </ul>
-          <img
-            class="rules__img"
-            src="img/rock-paper-scissors.png"
-            alt="rock paper scissors"
-          />
+          <h2 class="welcome__subtitle">Keyboard Controls</h2>
+          <ul class="welcome__list">
+            <li><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> Rock/Paper/Scissors</li>
+            <li><kbd>Space</kbd> Start Game/Next Round</p>
+          </ul>
+          <img class="welcome__img" src="img/rps.png" alt="rock paper scissors"/>
         </div>
 
         <div class="weapons hide">
@@ -62,7 +64,7 @@
       </div>
     </div>
 
-    <div class="table__container"></div>
+    <div class="table"></div>
 
     <footer class="footer">
       <p class="footer__copyright">Copyright &copy; 2022 by

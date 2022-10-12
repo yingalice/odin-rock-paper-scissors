@@ -86,6 +86,7 @@ img {
   border: 2px solid white;
   border-radius: 16px;
   box-shadow: 20px 20px 20px -10px var(--purple-pink);
+  overflow: hidden;
 }
 
 .main--skinny {
@@ -110,14 +111,32 @@ img {
   content: 'Choose your weapon';
 }
 
-.rules__list {
-  margin: 1rem 0;
-  list-style-type: none;
+.welcome__subtitle {
+  font-size: 1rem;
+  text-decoration: underline;
+  color:aquamarine;
+  margin-top: 1rem;
 }
 
-.rules__list li:last-child {
+.welcome__list {
+  list-style-type: none;
+  margin-bottom: 1rem;
+}
+
+.welcome__list:first-of-type li:first-child {
   color: lightskyblue;
-  margin-top: 1rem;
+}
+
+kbd {
+  display: inline-block;
+  color: black;
+  background-color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 4px;
+  border: 1px solid gray;
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
 }
 
 .weapons {
@@ -132,7 +151,8 @@ img {
   transition: all 200ms;
 }
 
-.weapons__btn:hover {
+.weapons__btn:hover,
+.weapons__btn--kbd {
   scale: 1.1;
 }
 
@@ -155,14 +175,16 @@ img {
   margin-top: 1rem;
 }
 
-.btn__next-round,
-.btn__new-game:hover {
+.btn__new-game:hover,
+.btn.btn__new-game--kbd,
+.btn__next-round {
   color: black;
   background-color: white;
   border: 2px solid black;
 }
 
 .btn__next-round:hover,
+.btn.btn__next-round--kbd,
 .btn__new-game {
   color: white;
   background-color: black;
@@ -250,7 +272,7 @@ tbody tr:hover {
 }
 
 .fade-in {
-  animation: fade-in 2s;
+  animation: fade-in 1.5s;
 }
 
 @keyframes fade-in {
