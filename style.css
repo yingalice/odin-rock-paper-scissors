@@ -31,14 +31,35 @@ body {
 img {
   max-width: 200px;
   max-height: 200px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .header {
   margin: 1rem 0;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   text-transform: uppercase;
   text-align: center;
   text-shadow: 2px 2px 5px var(--purple-pink);
+}
+
+.rules {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  color:aquamarine;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 200;
+  padding: 0.3rem;
+  border: 1px dashed currentColor;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+}
+
+.rules:hover {
+  color: var(--purple-pink);
 }
 
 .score {
@@ -76,8 +97,64 @@ img {
   margin-top: 0.5rem;
 }
 
+.settings {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.toggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle + label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.toggle + label::before {
+  content: '';
+  width: 2.8rem;
+  height: 1rem;
+  background-color:lightsteelblue;
+  border-radius: 1rem;
+  margin-right: 0.25rem;
+  transition: 200ms ease-in-out;
+}
+
+.toggle + label::after {
+  position: absolute;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  content: '\2715';
+  width: 1.4rem;
+  height: 1.4rem;
+  font-size: 0.75rem;
+  color: gray;
+  background-color: aliceblue;
+  border-radius: 1rem;
+  transition: 200ms ease-in-out;
+}
+
+.toggle:checked + label::before {
+  background-color:lightskyblue;
+}
+
+.toggle:checked + label::after {
+  content: '\2713';
+  left: 1.4rem;
+  background-color: aliceblue;
+}
+
+.welcome,
 .main {
-  margin: 1.5rem auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -85,12 +162,13 @@ img {
   padding: 1rem;
   border: 2px solid white;
   border-radius: 16px;
+  margin: 1.5rem auto;
   box-shadow: 20px 20px 20px -10px var(--purple-pink);
   overflow: hidden;
 }
 
-.main--skinny {
-  width: max-content;
+.welcome {
+  max-width: max-content;
 }
 
 .main__text {
@@ -125,6 +203,15 @@ img {
 
 .welcome__list:first-of-type li:first-child {
   color: lightskyblue;
+}
+
+.welcome__img {
+  display: block;
+  margin: 0 auto;
+}
+
+.welcome button {
+  align-self: center;
 }
 
 kbd {
@@ -171,21 +258,21 @@ kbd {
   font-size: inherit;
   font-weight: bold;
   padding: 0.5rem;
-  cursor: pointer;
   margin-top: 1rem;
+  cursor: pointer;
 }
 
-.btn__new-game:hover,
-.btn.btn__new-game--kbd,
-.btn__next-round {
+.btn--white,
+.btn--black:hover,
+.btn.btn--black-kbd {
   color: black;
   background-color: white;
   border: 2px solid black;
 }
 
-.btn__next-round:hover,
-.btn.btn__next-round--kbd,
-.btn__new-game {
+.btn--black,
+.btn--white:hover,
+.btn.btn--white-kbd {
   color: white;
   background-color: black;
   border: 2px solid white;

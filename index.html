@@ -16,6 +16,15 @@
       <h1 class="header__title">Rock Paper Scissors</h1>
     </header>
 
+    <button type="button" class="rules hide">Rules & Keyboard Controls</button>
+
+    <div class="settings">
+      <input type="checkbox" id="audio" class="settings__item toggle" checked>
+      <label for="audio">Audio</label>
+      <input type="checkbox" id="table" class="settings__item toggle" checked>
+      <label for="table">Table</label>
+    </div>
+
     <div class="score">
       <div class="score__player">
         <p class="score__player-label">Player</p>
@@ -27,51 +36,45 @@
       </div>
     </div>
 
-    <div class="main main--skinny" data-screen="welcome">
-      <div class="main__container">
-        <div class="welcome">
-          <h1 class="welcome__title">Welcome</h1>
-          <h2 class="welcome__subtitle">Rules</h2>
-          <ul class="welcome__list">
-            <li>First to 5 wins!</li>
-            <li>Rock beats scissors</li>
-            <li>Paper beats rock</li>
-            <li>Scissors beats paper</li>
-          </ul>
-          <h2 class="welcome__subtitle">Keyboard Controls</h2>
-          <ul class="welcome__list">
-            <li><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> Rock/Paper/Scissors</li>
-            <li><kbd>Space</kbd> Start Game/Next Round</p>
-          </ul>
-          <img class="welcome__img" src="img/rps.png" alt="rock paper scissors"/>
-        </div>
+    <div class="welcome">
+      <h2 class="welcome__title">Welcome</h2>
+      <h3 class="welcome__subtitle">Rules</h3>
+      <ul class="welcome__list">
+        <li>First to 5 wins!</li>
+        <li>Rock beats scissors</li>
+        <li>Paper beats rock</li>
+        <li>Scissors beats paper</li>
+      </ul>
+      <h3 class="welcome__subtitle">Keyboard Controls</h3>
+      <ul class="welcome__list">
+        <li><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> Rock/Paper/Scissors</li>
+        <li><kbd>Space</kbd> Start Game/Next Round</p>
+      </ul>
+      <img class="welcome__img" src="img/rps.png" alt="rock paper scissors"/>
+      <button type="button" class="btn btn__start-game btn--black">Start Game</button>
+      <button type="button" class="btn btn__close btn--black hide">Close</button>
+    </div>
 
-        <div class="weapons hide">
+    <main class="main hide" data-screen="welcome-start">
+      <div class="main__container">
+        <div class="weapons">
           <img class="weapons__btn" id="rock" src="img/rock.png" alt="rock" />
           <img class="weapons__btn" id="paper" src="img/paper.png" alt="paper" />
           <img class="weapons__btn" id="scissors" src="img/scissors.png" alt="scissors" />
         </div>
 
-        <div class="results hide">
+        <div class="results">
           <img class="results__player" src="" alt="" />
-          <button class="btn btn__next-round">Next Round</button>
+          <button type="button" class="btn btn__next-round  btn--white">Next Round</button>
           <img class="results__computer" src="" alt="" />
         </div>
 
-        <p class="main__text hide"></p>
-
-        <button class="btn btn__new-game">Start Game</button>
+        <p class="main__text"></p>
+        <button type="button" class="btn btn__replay-game btn--black"></button>
       </div>
-    </div>
+    </main>
 
     <div class="table"></div>
-
-    <footer class="footer">
-      <p class="footer__copyright">Copyright &copy; 2022 by
-        <a class="footer__link" href="https://github.com/yingalice" target="_blank">yingalice</a>
-        <i class="fa-brands fa-github"></i>
-      </p>
-    </footer>
 
     <div class="sounds">
       <audio id="weapon-hover" src="audio/weapon-hover.wav"></audio>
@@ -81,5 +84,12 @@
       <audio id="game-won" src="audio/game-won.wav"></audio>
       <audio id="game-lost" src="audio/game-lost.wav"></audio>
     </div>
+
+    <footer class="footer">
+      <p class="footer__copyright">Copyright &copy; 2022 by
+        <a class="footer__link" href="https://github.com/yingalice" target="_blank">yingalice</a>
+        <i class="fa-brands fa-github"></i>
+      </p>
+    </footer>
   </body>
 </html>
