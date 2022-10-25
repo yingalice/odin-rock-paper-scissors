@@ -165,7 +165,6 @@ button {
   gap: 1.5em;
   font-size: 1em;
   margin: 1em 0;
-  overflow: hidden;
 }
 
 .score__player,
@@ -175,6 +174,7 @@ button {
   border: 1px solid currentColor;
   border-radius: 4px;
   box-shadow: 10px 10px 20px -10px plum;
+  overflow: hidden;
 }
 
 .score__label {
