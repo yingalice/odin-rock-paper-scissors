@@ -4,35 +4,35 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://kit.fontawesome.com/602d755a29.js" crossorigin="anonymous"></script>
     <title>Rock Paper Scissors</title>
     <link rel="icon" type="image/x-icon" href="/img/rps.png" />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/602d755a29.js" crossorigin="anonymous"></script>
     <script src="script.js" defer></script>
   </head>
 
   <body>
     <header class="header">
-      <h1 class="header__title">Rock Paper Scissors</h1>
+      <h1>Rock Paper Scissors</h1>
     </header>
 
     <button type="button" class="rules hide">Rules & Keyboard Controls</button>
 
-    <div class="settings">
-      <input type="checkbox" id="audio" class="settings__item toggle" checked>
+    <div class="settings hide">
+      <input type="checkbox" id="audio" class="toggle" checked>
       <label for="audio">Audio</label>
-      <input type="checkbox" id="table" class="settings__item toggle" checked>
+      <input type="checkbox" id="table" class="toggle" checked>
       <label for="table">Table</label>
     </div>
 
-    <div class="score">
+    <div class="score hide">
       <div class="score__player">
-        <p class="score__player-label">Player</p>
-        <p class="score__player-counter">0</p>
+        <p class="score__label">Player</p>
+        <p class="score__counter">0</p>
       </div>
       <div class="score__computer">
-        <p class="score__computer-label">Computer</p>
-        <p class="score__computer-counter">0</p>
+        <p class="score__label">Computer</p>
+        <p class="score__counter">0</p>
       </div>
     </div>
 
@@ -48,25 +48,25 @@
       <h3 class="welcome__subtitle">Keyboard Controls</h3>
       <ul class="welcome__list">
         <li><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> Rock/Paper/Scissors</li>
-        <li><kbd>Space</kbd> Start Game/Next Round</p>
+        <li><kbd>Space</kbd> Start Game/Next Round</li>
       </ul>
-      <img class="welcome__img" src="img/rps.png" alt="rock paper scissors"/>
+      <img class="welcome__img" src="img/rps.png" alt="rock paper scissors" width="800" height="551"/>
       <button type="button" class="btn btn__start-game btn--black">Start Game</button>
       <button type="button" class="btn btn__close btn--black hide">Close</button>
     </div>
 
-    <main class="main hide" data-screen="welcome-start">
+    <main class="main hide">
       <div class="main__container">
         <div class="weapons">
-          <img class="weapons__btn" id="rock" src="img/rock.png" alt="rock" />
-          <img class="weapons__btn" id="paper" src="img/paper.png" alt="paper" />
-          <img class="weapons__btn" id="scissors" src="img/scissors.png" alt="scissors" />
+          <img class="weapons__btn" id="rock" src="img/rock.png" alt="rock" width="350" height="200" />
+          <img class="weapons__btn" id="paper" src="img/paper.png" alt="paper" width="350" height="200" />
+          <img class="weapons__btn" id="scissors" src="img/scissors.png" alt="scissors" width="350" height="200" />
         </div>
 
         <div class="results">
-          <img class="results__player" src="" alt="" />
-          <button type="button" class="btn btn__next-round  btn--white">Next Round</button>
-          <img class="results__computer" src="" alt="" />
+          <img class="results__player" src="" alt="" width="350" height="200" />
+          <button type="button" class="btn btn__next-round btn--white">Next Round</button>
+          <img class="results__computer" src="" alt="" width="350" height="200" />
         </div>
 
         <p class="main__text"></p>
@@ -77,12 +77,12 @@
     <div class="table"></div>
 
     <div class="sounds">
-      <audio id="weapon-hover" src="audio/weapon-hover.wav"></audio>
-      <audio id="round-won" src="audio/round-won.wav"></audio>
-      <audio id="round-lost" src="audio/round-lost.wav"></audio>
-      <audio id="round-tie" src="audio/round-tie.wav"></audio>
-      <audio id="game-won" src="audio/game-won.wav"></audio>
-      <audio id="game-lost" src="audio/game-lost.wav"></audio>
+      <audio id="weapon-hover" src="audio/weapon-hover.mp3" preload="auto"></audio>
+      <audio id="round-won" src="audio/round-won.mp3" preload="auto"></audio>
+      <audio id="round-lost" src="audio/round-lost.mp3" preload="auto"></audio>
+      <audio id="round-tie" src="audio/round-tie.mp3" preload="auto"></audio>
+      <audio id="game-won" src="audio/game-won.mp3" preload="auto"></audio>
+      <audio id="game-lost" src="audio/game-lost.mp3" preload="auto"></audio>
     </div>
 
     <footer class="footer">

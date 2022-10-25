@@ -1,20 +1,20 @@
 'use strict';
-let score = { player: 0, computer: 0 };
 let round = 0;
-let scheduled = null;
-let showChooseWeaponText;
+let playerScore = 0;
+let computerScore = 0;
 let audioOn = true;
-let prevScreenName;
-let prevScreenElements = [];
+let responseScheduled = null;  // Prevent spamming & playing multiple rounds at once
+let screen = 'welcome-start';
+let prevScreen;
+let prevScreenElements;
+let timeoutShowText;
 
-const playerScoreCounter = document.querySelector('.score__player-counter');
-const computerScoreCounter = document.querySelector('.score__computer-counter');
+const rules = document.querySelector('.rules');
 const settings = document.querySelector('.settings');
-const rulesBtn = document.querySelector('.rules');
 const welcome = document.querySelector('.welcome');
 const main = document.querySelector('.main');
-const mainText = document.querySelector('.main__text');
 const mainContainer = document.querySelector('.main__container');
+const mainText = document.querySelector('.main__text');
 const weapons = document.querySelector('.weapons');
 const results = document.querySelector('.results');
 const startGameBtn = document.querySelector('.btn__start-game');
@@ -24,19 +24,20 @@ const closeBtn = document.querySelector('.btn__close');
 const tableParent = document.querySelector('.table')
 let table;
 
-rulesBtn.addEventListener('click', respondClickRules);
+rules.addEventListener('click', respondToggleRules);
 settings.addEventListener('change', respondToggleSettings);
 weapons.addEventListener('mouseover', respondHoverWeapon);
 weapons.addEventListener('mouseout', respondNotHoverWeapon);
-weapons.addEventListener('click', respondClickWeapon);
-startGameBtn.addEventListener('click', respondClickNewGame);
-nextRoundBtn.addEventListener('click', respondClickNextRound);
-replayGameBtn.addEventListener('click', respondClickNewGame);
-closeBtn.addEventListener('click', respondClickClose);
-window.addEventListener('keydown', respondKeydown);
+weapons.addEventListener('click', respondSelectWeapon);
+startGameBtn.addEventListener('click', respondNewGame);
+nextRoundBtn.addEventListener('click', respondNextRound);
+replayGameBtn.addEventListener('click', respondNewGame);
+closeBtn.addEventListener('click', respondClose);
+document.addEventListener('keydown', respondKeydown);
 document.addEventListener('animationend', respondRemoveAnimation);
+window.addEventListener('resize', respondResizeWindow);
 
-// Core logic
+// ---Core logic---
 function showComponents(...visibleElements) {
   const allElements = [
     welcome,
@@ -47,13 +48,18 @@ function showComponents(...visibleElements) {
     startGameBtn,
     nextRoundBtn,
     replayGameBtn,
-    closeBtn
+    closeBtn,
   ];
-  
-  prevScreenName = main.dataset.screen;
-  prevScreenElements = [];
+
   allElements.forEach((element) => {
-    if (!element.classList.contains('hide')) prevScreenElements.push(element);
+    if (screen === 'welcome-info') {
+      // Save previous screen so it can be restored when rules are closed
+      if (!element.classList.contains('hide')) {
+        prevScreenElements.push(element);
+      }
+    }
+    
+    // Show desired elements, hide everything else
     if (visibleElements.includes(element)) {
       element.classList.remove('hide');
     } else {
@@ -61,104 +67,92 @@ function showComponents(...visibleElements) {
     }
   });
 
+  // If main height is blank, set it after elements are displayed so it knows how much room to take
+  if (!main.style.height && visibleElements.includes(main)) {
+    respondResizeWindow();
+  }
 }
 
 function showChooseWeapon() {
-  main.dataset.screen = 'choose-weapon';
+  switch (screen) {
+    case 'game-result':
+      mainText.classList.remove('main__text--large');
+    case 'welcome-start':
+    case 'game-result':
+      // Finish shake animation before starting fade in (prevents slight element resize)
+      mainContainer.style.opacity = 0;
+      main.addEventListener('animationend', fadeIn, { once: true });
+      break;
+    default:
+      fadeIn();
+  }
 
+  screen = 'choose-weapon';
+  updateMsg('Choose your weapon');
   showComponents(main, weapons, mainText);
-  playAnimation(mainContainer, 'fade-in');
-  playAnimation(mainText, 'fade-in');
-  mainText.textContent = '\u200b';
-  mainText.classList.add('main__text--default');
-  mainText.classList.remove('main__text--large');
+
+  function fadeIn(e) {
+    mainContainer.style.opacity = '';
+    playAnimation(mainContainer, 'fade-in');
+    playAnimation(mainText, 'fade-in');
+  }
 }
 
 function showRoundResult(outcome, playerChoice, computerChoice) {
   const playerImg = results.querySelector('.results__player');
   const computerImg = results.querySelector('.results__computer');
-  main.dataset.screen = 'round-result';
-
-  showComponents(main, results, nextRoundBtn, mainText);
-  playAnimation(mainContainer, 'fade-in');
+  
   playerImg.setAttribute('src', `img/${playerChoice}.png`);
-  playerImg.setAttribute('alt', `player's choice: ${playerChoice}`);
+  playerImg.setAttribute('alt', `${playerChoice} (player's choice)`);
   computerImg.setAttribute('src', `img/${computerChoice}.png`);
-  computerImg.setAttribute('alt', `computer's choice: ${computerChoice}`);
+  computerImg.setAttribute('alt', `${computerChoice} (computer's choice)`);
 
   switch (outcome) {
     case 'win':
-      updateScoreCounter('player', score.player);
+      updateScoreCounter('player', playerScore);
       playAudio('round-won');
       updateMsg(`You win! ${capitalize(playerChoice)} beats ${computerChoice}.`);
       break;
     case 'lose':
-      updateScoreCounter('computer', score.computer);
+      updateScoreCounter('computer', computerScore);
       playAudio('round-lost');
       updateMsg(`You lose! ${capitalize(computerChoice)} beats ${playerChoice}.`);
       break;
     case 'tie':
       playAudio('round-tie');
       updateMsg(`You tied!  Both chose ${playerChoice}.`);
+      break;
+    default:
+      console.error(`Error: Invalid outcome ${outcome}`);
   }
+
+  screen = 'round-result';
+  showComponents(main, results, nextRoundBtn, mainText);
+  playAnimation(mainContainer, 'fade-in');
 }
 
 function showGameResult(outcome) {
-  main.style.height = `${main.offsetHeight}px`;
-  showComponents(main, replayGameBtn, mainText);
-  main.dataset.screen = 'game-result';
-
-  playAnimation(mainContainer, 'zoom-out');
-  mainText.classList.add('main__text--large');0
-
   switch (outcome) {
     case 'win':
-      updateScoreCounter('player', score.player);
+      updateScoreCounter('player', playerScore);
       playAudio('game-won');
       updateMsg(`HOORAY!  You win!`);
       replayGameBtn.textContent = 'Play Again?';
       break;
     case 'lose':
-      updateScoreCounter('computer', score.computer);
+      updateScoreCounter('computer', computerScore);
       playAudio('game-lost');
       updateMsg(`OH NO!  You lose!`);
       replayGameBtn.textContent = 'Retry?';
+      break;
+    default:
+      console.error(`Error: Invalid outcome ${outcome}`);
   }
-}
 
-function playRound(playerChoice, computerChoice) {
-  let outcome;
-
-  if (playerChoice === computerChoice) {
-    outcome = 'tie';
-  } else if (
-    (playerChoice === 'rock' && computerChoice === 'scissors') ||
-    (playerChoice === 'paper' && computerChoice === 'rock') ||
-    (playerChoice === 'scissors' && computerChoice === 'paper')
-    ) {
-      outcome = 'win';
-      score.player++;
-    } else {
-      outcome = 'lose';
-      score.computer++;
-    }
-    round++;
-
-  const roundResult = {
-    round: round,
-    player: playerChoice,
-    computer: computerChoice,
-    outcome: outcome,
-  };
-
-  mainText.classList.remove('main__text--default');
-  if (!isGameOver()) {
-    showRoundResult(outcome, playerChoice, computerChoice);
-  } else {
-    showGameResult(outcome);
-  }
-  table || createTable();
-  addTableRow(roundResult);
+  screen = 'game-result';
+  mainText.classList.add('main__text--large');
+  showComponents(main, mainText, replayGameBtn);
+  playAnimation(mainContainer, 'zoom-out');
 }
 
 function getComputerChoice() {
@@ -166,8 +160,63 @@ function getComputerChoice() {
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
+function playRound(playerChoice, computerChoice) {
+  let outcome;
+
+  switch (true) {
+    case (playerChoice === computerChoice):
+      outcome = 'tie';
+      break;
+    case (playerChoice === 'rock' && computerChoice === 'scissors'):
+    case (playerChoice === 'paper' && computerChoice === 'rock'):
+    case (playerChoice === 'scissors' && computerChoice === 'paper'):
+      outcome = 'win';
+      playerScore++;
+      break;
+    default:
+      outcome = 'lose'
+      computerScore++;
+  }
+
+  const roundResult = {
+    round: ++round,
+    player: playerChoice,
+    computer: computerChoice,
+    outcome: outcome,
+  };
+
+  updateTable(roundResult);
+  if (isGameOver()) {
+    showGameResult(outcome);
+  } else {
+    showRoundResult(outcome, playerChoice, computerChoice);
+  }
+}
+
+function isGameOver() {
+  return (playerScore === 5 || computerScore === 5);
+}
+
+function updateScoreCounter(user, score) {
+  const playerScoreCounter = document.querySelector('.score__player .score__counter');
+  const computerScoreCounter = document.querySelector('.score__computer .score__counter');
+  const counter = (user === 'player') ? playerScoreCounter : computerScoreCounter;
+
+  counter.textContent = score;
+  playAnimation(counter, 'slide-up');
+}
+
 function updateMsg(msg) {
-  mainText.innerHTML = msg;
+  mainText.textContent = msg;
+}
+
+function playAnimation(element, animationClass) {
+  // Remove any currently playing animations on this element
+  element.getAnimations().forEach((animation) => {
+    element.classList.remove(animation.animationName);
+  });
+  element.offsetHeight;  // Trigger reflow to reset animation, so it can be replayed
+  element.classList.add(animationClass);
 }
 
 function playAudio(id) {
@@ -177,40 +226,34 @@ function playAudio(id) {
   audio.play();
 }
 
-function updateScoreCounter(user, score) {
-  const node = (user === 'player') ? playerScoreCounter : computerScoreCounter;
-  node.textContent = score;
-  playAnimation(node, 'slide-up');
+function capitalize(str) {
+  return str[0].toUpperCase() + str.slice(1);
 }
 
-function isGameOver() {
-  return score.player === 5 || score.computer === 5 ? true : false;
-}
-
-//Table
+// ---Table---
 function createTable() {
-  const tableHeaders = ['Round', 'Player', 'Computer', 'Outcome'];
+  const tableHeaders = ['#', 'Player', 'Computer', 'Outcome'];
   
   table = document.createElement('table');
-  tableParent.appendChild(table);
   const thead = table.createTHead();
   const row = thead.insertRow();
-  
-  for (const header of tableHeaders) {
+  tableHeaders.forEach((header) => {
     const th = document.createElement('th');
     th.textContent = header;
     row.appendChild(th);
-  }
+  });
+  table.createTBody();
+
+  tableParent.appendChild(table);
 }
 
 function addTableRow(data) {
-  const tbody = table.querySelector('tbody') || table.createTBody();
-  const row = tbody.insertRow();
-  for (const key in data) {
+  const tbody = table.tBodies[0];
+  const row = tbody.insertRow(0);
+  for (const col in data) {
     const cell = row.insertCell();
-    cell.innerHTML = key === 'outcome' ? showIcon(data[key]) : data[key];
+    cell.innerHTML = (col === 'outcome') ? showIcon(data[col]) : data[col];
   }
-  tbody.insertBefore(row, tbody.firstChild);
 
   function showIcon(outcome) {
     switch (outcome) {
@@ -220,174 +263,190 @@ function addTableRow(data) {
         return '<span style="color: red;">\u2717</span>';
       case 'tie':
         return '\u2014';
+      default:
+        console.error(`Error: Invalid outcome ${outcome}`);
     }
   }
 }
 
+function updateTable(data) {
+  table || createTable();
+  addTableRow(data);
+}
+
 function deleteTable() {
-  if (!table) return;
-  table.parentNode.removeChild(table);
+  table.remove();
   table = null;
 }
 
-// Utility
-function capitalize(str) {
-  return str[0].toUpperCase() + str.slice(1);
+// ---Event Listeners---
+// For some non-mouse 'click' events below (touch or keyboard), there is a small timeout 
+// so hover effects have time to play (ie. change button color, enlarge weapon image)
+function respondToggleRules(e) {
+  if (screen === 'welcome-info') {
+    respondClose(e);
+    return;
+  }
+  
+  const welcomeTitle = welcome.querySelector('.welcome__title');
+  welcomeTitle.textContent = 'Info';
+  prevScreen = screen;
+  prevScreenElements = [];
+  screen = 'welcome-info';
+  showComponents(welcome, closeBtn);
+  playAnimation(welcome, 'fade-in');
 }
 
-function playAnimation(node, animationClassName) {
-  // Remove any currently playing animations on this node
-  node.getAnimations().forEach((animation) => {
-    node.classList.remove(animation.animationName);
-  });
-  node.offsetHeight;  //Trigger reflow to reset animation
-  node.classList.add(animationClassName);
-}
-
-// Event Listeners
 function respondToggleSettings(e) {
-  const item = e.target;
+  const setting = e.target;
 
-  switch (item.id) {
+  switch (setting.id) {
     case 'audio':
-      audioOn = item.checked;
+      audioOn = setting.checked;
       break;
     case 'table':
       tableParent.classList.toggle('hide');
       break;
     default:
-      console.error(`Error: Unknown toggle ${item.id}`);
+      console.error(`Error: Unknown toggle ${setting.id}`);
   }
-}
-
-function respondClickRules() {
-  if (
-    main.dataset.screen === 'welcome' ||
-    main.dataset.screen === 'welcome-start'
-  )
-    return;
-  
-  const welcomeTitle = welcome.querySelector('.welcome__title');
-  welcomeTitle.textContent = 'Info';
-  showComponents(welcome, closeBtn);
-  main.dataset.screen = 'welcome';
-  playAnimation(main, 'fade-in');
 }
 
 function respondHoverWeapon(e) {
   if (e.target.matches('img')) {
-    clearTimeout(showChooseWeaponText);
     const playerChoice = e.target.id;
-    mainText.classList.remove('main__text--default');
-    mainText.textContent = playerChoice.toUpperCase();
+    clearTimeout(timeoutShowText);
+    updateMsg(playerChoice.toUpperCase());
     playAudio('weapon-hover');
   }
 }
 
 function respondNotHoverWeapon(e) {
-  if (main.dataset.screen !== 'choose-weapon') return;
+  if (screen !== 'choose-weapon') return;
   if (e.target.matches('img')) {
-    showChooseWeaponText = setTimeout(() => {
-      mainText.classList.add('main__text--default');
+    updateMsg('\u200b');
+    timeoutShowText = setTimeout(() => {
+      updateMsg('Choose your weapon');
       playAnimation(mainText, 'fade-in');
-    }, 200);
-    mainText.textContent = '\u200b';
+    }, 400);
   }
 }
 
-function respondClickWeapon(e) {
-  if (e.target.matches('img')) {
-    let timeout = (e.pointerType === 'touch') ? 200 : 0;
+function respondSelectWeapon(e) {
+  const element = e.target;
+    
+  if (element.matches('img')) {
+    if (responseScheduled) return;
+    responseScheduled = true;
+    
+    const timeout = (e.pointerType === 'mouse') ? 0 : 200;
+    if (e.kbdClass) element.classList.add(e.kbdClass);
+
     setTimeout(() => {
-      clearTimeout(showChooseWeaponText);
-      const playerChoice = e.target.id;
-      playRound(playerChoice, getComputerChoice());  
+      const playerChoice = element.id;
+      if (e.kbdClass) element.classList.remove(e.kbdClass);
+      playRound(playerChoice, getComputerChoice());
+      responseScheduled = null;
     }, timeout);
   }
 }
 
-function respondClickNewGame(e) {
-  const scoreCounter = document.querySelector('.score');
-  const element = e.target || e;
-
-  let timeout = (e.pointerType === 'touch') ? 100 : 0;
+function respondNewGame(e) {
+  if (responseScheduled) return;
+  responseScheduled = true;
+  
+  const element = e.target;
+  const score = document.querySelector('.score');
+  const timeout = (e.pointerType === 'mouse') ? 0 : 100;
+  if (e.kbdClass) element.classList.add(e.kbdClass);
+  
   setTimeout(() => {
-    if (element === replayGameBtn) {
-      score.player = 0;
-      score.computer = 0;
-      round = 0;
-      deleteTable();
-    } else if (element === startGameBtn) {
-      main.classList.remove('hide');
-      rulesBtn.classList.remove('hide');
-      welcome.classList.add('hide');
+    if (e.kbdClass) element.classList.remove(e.kbdClass);
+    switch (element) {
+      case replayGameBtn:
+        round = 0;
+        playerScore = 0;
+        computerScore = 0;
+        deleteTable();
+        break;
+      case startGameBtn:
+        const unhide = [rules, settings, score, main];
+        unhide.forEach((element) => element.classList.remove('hide'));
+        welcome.classList.add('hide');
+        break;
+      default:
+        console.error(`Error: Unexpected element ${element}`);
     }
-
-    updateScoreCounter('player', score.player);
-    updateScoreCounter('computer', score.computer);
+    updateScoreCounter('player', playerScore);
+    updateScoreCounter('computer', computerScore);
+    playAnimation(score, 'shake');
     playAnimation(main, 'shake');
-    playAnimation(scoreCounter, 'shake');
     showChooseWeapon();
+    responseScheduled = null;
   }, timeout);
 }
 
-function respondClickNextRound(e) {
-  let timeout = (e.pointerType === 'touch') ? 100 : 0;
+function respondNextRound(e) {
+  if (responseScheduled) return;
+  responseScheduled = true;
+  
+  const element = e.target;
+  const timeout = (e.pointerType === 'mouse') ? 0 : 100;
+  if (e.kbdClass) element.classList.add(e.kbdClass);
+
   setTimeout(() => {
+    if (e.kbdClass) element.classList.remove(e.kbdClass);
     showChooseWeapon();
     playAnimation(mainContainer, 'fade-in');
+    responseScheduled = null;
   }, timeout);
 }
 
-function respondClickClose(e) {
-  let timeout = (e.pointerType === 'touch') ? 100 : 0;
+function respondClose(e) {
+  if (responseScheduled) return;
+  responseScheduled = true;
+  
+  const element = e.target;
+  const timeout = (e.pointerType === 'mouse') ? 0 : 100;
+  if (e.kbdClass) element.classList.add(e.kbdClass);
+
   setTimeout(() => {
-    main.dataset.screen = prevScreenName;
+    if (e.kbdClass) element.classList.remove(e.kbdClass);
+    screen = prevScreen;
     showComponents(...prevScreenElements);
+    playAnimation(mainContainer, 'fade-in');
+    responseScheduled = null;
   }, timeout);
 }
 
 function respondKeydown(e) {
-  const screen = main.dataset.screen;
   const keyPress = e.code;
+  let args = { pointerType: 'keyboard' };
 
   if (
     keyPress !== 'KeyJ' &&
     keyPress !== 'KeyK' &&
     keyPress !== 'KeyL' &&
     keyPress !== 'Space'
-  ) 
+  ) {
     return;
+  }
   if (keyPress === 'Space') e.preventDefault();
-  if (scheduled) return; // Prevent multiple keypress from playing extra rounds
 
+  // Simulate mouse behavior when using keyboard controls (activate button's hover styles)
+  // CSS :hover won't trigger programmatically, so manually add/remove equivalent class
   switch (screen) {
     case 'welcome-start':
       if (keyPress !== 'Space') return;
-      simulateHoverClick(
-        100,
-        startGameBtn,
-        'btn--black-kbd',
-        respondClickNewGame, startGameBtn
-      );
+      args.target = startGameBtn;
+      args.kbdClass = 'btn--black-kbd';
+      respondNewGame(args);
       break;
-    case 'welcome':
+    case 'welcome-info':
       if (keyPress !== 'Space') return;
-      simulateHoverClick(
-        100,
-        closeBtn,
-        'btn--black-kbd',
-        respondClickClose, closeBtn
-      );
-      break;
-    case 'game-result':
-      if (keyPress !== 'Space') return;
-      simulateHoverClick(
-        100,
-        replayGameBtn,
-        'btn--black-kbd',
-        respondClickNewGame, replayGameBtn
-      );
+      args.target = closeBtn;
+      args.kbdClass = 'btn--black-kbd';
+      respondClose(args);
       break;
     case 'choose-weapon':
       const playerChoice =
@@ -397,40 +456,40 @@ function respondKeydown(e) {
         null;
       if (!playerChoice) return;
       const weaponImg = document.querySelector(`#${playerChoice}`);
-      simulateHoverClick(
-        200,
-        weaponImg,
-        'weapons__btn--kbd',
-        playRound, playerChoice, getComputerChoice()
-      );
+      const evtMouseOver = new MouseEvent('mouseover', { bubbles: true });
+      weaponImg.dispatchEvent(evtMouseOver);
+      args.target = weaponImg;
+      args.kbdClass = 'weapons__btn--kbd';
+      respondSelectWeapon(args);
       break;
     case 'round-result':
       if (keyPress !== 'Space') return;
-      simulateHoverClick(
-        100,
-        nextRoundBtn,
-        'btn--white-kbd',
-        respondClickNextRound, nextRoundBtn
-      );
+      args.target = nextRoundBtn;
+      args.kbdClass = 'btn--white-kbd';
+      respondNextRound(args);
+      break;
+    case 'game-result':
+      if (keyPress !== 'Space') return;
+      args.target = replayGameBtn;
+      args.kbdClass = 'btn--black-kbd';
+      respondNewGame(args);
       break;
     default:
-      console.error(`Error: Unknown screen: ${screen}`);
-  }
-
-  function simulateHoverClick(timeout, node, cls, callback, ...callbackArgs) {
-    const evtMouseover = new MouseEvent('mouseover', { bubbles: true });
-
-    scheduled = true;
-    node.dispatchEvent(evtMouseover);
-    node.classList.add(cls);
-    setTimeout(() => {
-      node.classList.remove(cls);
-      callback(...callbackArgs);
-      scheduled = null;
-    }, timeout);
+      console.error(`Error: Unknown screen ${screen}`);
   }
 }
 
 function respondRemoveAnimation(e) {
-    e.target.classList.remove(e.animationName);
+  e.target.classList.remove(e.animationName);
+}
+
+function respondResizeWindow() {
+  // Keep main height consistent across screens
+  // 1. Clear height so it resizes according to contents
+  // 2. Base new height on screens with the most content
+  main.style.height = '';
+  
+  if (screen === 'choose-weapon' || screen === 'round-result') {
+    main.style.height = `${main.offsetHeight}px`;
+  }
 }
