@@ -346,6 +346,7 @@ function respondSelectWeapon(e) {
       const playerChoice = element.id;
       if (e.kbdClass) element.classList.remove(e.kbdClass);
       playRound(playerChoice, getComputerChoice());
+      clearTimeout(timeoutShowText);
       responseScheduled = null;
     }, timeout);
   }
@@ -359,7 +360,7 @@ function respondNewGame(e) {
   const score = document.querySelector('.score');
   const timeout = (e.pointerType === 'mouse') ? 0 : 100;
   if (e.kbdClass) element.classList.add(e.kbdClass);
-  
+
   setTimeout(() => {
     if (e.kbdClass) element.classList.remove(e.kbdClass);
     switch (element) {
