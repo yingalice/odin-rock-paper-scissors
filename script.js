@@ -35,6 +35,7 @@ replayGameBtn.addEventListener('click', respondNewGame);
 closeBtn.addEventListener('click', respondClose);
 document.addEventListener('keydown', respondKeydown);
 document.addEventListener('animationend', respondRemoveAnimation);
+document.addEventListener('animationcancel', respondRemoveAnimation);
 window.addEventListener('resize', respondResizeWindow);
 
 // ---Core logic---
@@ -74,7 +75,13 @@ function showComponents(...visibleElements) {
 }
 
 function showChooseWeapon() {
-  switch (screen) {
+  const orgScreen = screen;
+
+  screen = 'choose-weapon';
+  updateMsg('Choose your weapon');
+  showComponents(main, weapons, mainText);
+
+  switch (orgScreen) {
     case 'game-result':
       mainText.classList.remove('main__text--large');
     case 'welcome-start':
@@ -86,10 +93,6 @@ function showChooseWeapon() {
     default:
       fadeIn();
   }
-
-  screen = 'choose-weapon';
-  updateMsg('Choose your weapon');
-  showComponents(main, weapons, mainText);
 
   function fadeIn(e) {
     mainContainer.style.opacity = '';
@@ -211,12 +214,18 @@ function updateMsg(msg) {
 }
 
 function playAnimation(element, animationClass) {
+  if (element.classList.contains(animationClass)) {
+    element.classList.remove(animationClass);
+  }
+
   // Remove any currently playing animations on this element
   element.getAnimations().forEach((animation) => {
     element.classList.remove(animation.animationName);
   });
-  element.offsetHeight;  // Trigger reflow to reset animation, so it can be replayed
-  element.classList.add(animationClass);
+  
+  window.requestAnimationFrame(() => {
+    element.classList.add(animationClass);
+  });
 }
 
 function playAudio(id) {
@@ -339,12 +348,11 @@ function respondSelectWeapon(e) {
     if (responseScheduled) return;
     responseScheduled = true;
     
-    const timeout = (e.pointerType === 'mouse') ? 0 : 200;
-    if (e.kbdClass) element.classList.add(e.kbdClass);
+    playAnimation(element, 'scale-up');
+    const timeout = 200;
 
     setTimeout(() => {
       const playerChoice = element.id;
-      if (e.kbdClass) element.classList.remove(e.kbdClass);
       playRound(playerChoice, getComputerChoice());
       clearTimeout(timeoutShowText);
       responseScheduled = null;
@@ -398,7 +406,6 @@ function respondNextRound(e) {
   setTimeout(() => {
     if (e.kbdClass) element.classList.remove(e.kbdClass);
     showChooseWeapon();
-    playAnimation(mainContainer, 'fade-in');
     responseScheduled = null;
   }, timeout);
 }
@@ -460,7 +467,6 @@ function respondKeydown(e) {
       const evtMouseOver = new MouseEvent('mouseover', { bubbles: true });
       weaponImg.dispatchEvent(evtMouseOver);
       args.target = weaponImg;
-      args.kbdClass = 'weapons__btn--kbd';
       respondSelectWeapon(args);
       break;
     case 'round-result':

@@ -12,7 +12,7 @@
 
 ## What I learned
 - Animations
-  - Restart animations by triggering reflow with .offsetHeight (removing and re-adding class is not enough)
+  - Restart animations midplay with the help of requestAnimationFrame() (removing and re-adding class is not enough)
 - Keyboard controls
   - Prevent spamming and playing multiple rounds in one go, by ignoring subsequent keypresses until a flag is cleared
 - Audio
