@@ -2,12 +2,16 @@
 let round = 0;
 let playerScore = 0;
 let computerScore = 0;
-let audioOn = true;
 let responseScheduled = null;  // Prevent spamming & playing multiple rounds at once
+let audioContext;
+let audioOn = true;
+let audios = {};
+let audio;
 let screen = 'welcome-start';
 let prevScreen;
 let prevScreenElements;
 let timeoutShowText;
+let table;
 
 const rules = document.querySelector('.rules');
 const settings = document.querySelector('.settings');
@@ -22,7 +26,6 @@ const nextRoundBtn = document.querySelector('.btn__next-round');
 const replayGameBtn = document.querySelector('.btn__replay-game');
 const closeBtn = document.querySelector('.btn__close');
 const tableParent = document.querySelector('.table')
-let table;
 
 rules.addEventListener('click', respondToggleRules);
 settings.addEventListener('change', respondToggleSettings);
@@ -228,11 +231,32 @@ function playAnimation(element, animationClass) {
   });
 }
 
+function initAudios() {
+  const sources = {
+    'weapon-hover': 'audio/weapon-hover.mp3',
+    'round-won': 'audio/round-won.mp3',
+    'round-lost': 'audio/round-lost.mp3',
+    'round-tie': 'audio/round-tie.mp3',
+    'game-won': 'audio/game-won.mp3',
+    'game-lost': 'audio/game-lost.mp3',
+  }
+  
+  audioContext = new AudioContext();
+  for (const id in sources) {
+    fetch(sources[id])
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+      .then(decodedAudio => audios[id] = decodedAudio);
+  }
+}
+
 function playAudio(id) {
   if (!audioOn) return;
-  const audio = document.getElementById(id);
-  audio.currentTime = 0;
-  audio.play();
+  if (audio) audio.stop();
+  audio = audioContext.createBufferSource();
+  audio.buffer = audios[id];
+  audio.connect(audioContext.destination);
+  audio.start();
 }
 
 function capitalize(str) {
@@ -382,6 +406,7 @@ function respondNewGame(e) {
         const unhide = [rules, settings, score, main];
         unhide.forEach((element) => element.classList.remove('hide'));
         welcome.classList.add('hide');
+        initAudios();
         break;
       default:
         console.error(`Error: Unexpected element ${element}`);

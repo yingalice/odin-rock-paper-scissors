@@ -16,7 +16,7 @@
 - Keyboard controls
   - Prevent spamming and playing multiple rounds in one go, by ignoring subsequent keypresses until a flag is cleared
 - Audio
-  - Restart already playing audio by setting .currentTime to 0
+  - Use Web Audio API by creating an AudioContext and buffer to eliminate lag
 - Toggles
   - Toggles are checkboxes styled with CSS ::before and ::after
 - Table
