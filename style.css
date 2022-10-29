@@ -442,6 +442,16 @@ tbody tr:hover {
   }
 }
 
+@media (pointer: fine) {
+  .weapons__btn {
+    transition: all 200ms;
+  }
+
+  .weapons__btn:hover {
+    transform: scale(1.1);
+  }
+}
+
 @media (max-width: 768px) {  
   body {
     font-size: 0.95rem;

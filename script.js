@@ -6,7 +6,6 @@ let responseScheduled = null;  // Prevent spamming & playing multiple rounds at 
 let audioContext;
 let audioOn = true;
 let audios = {};
-let audio;
 let screen = 'welcome-start';
 let prevScreen;
 let prevScreenElements;
@@ -252,8 +251,7 @@ function initAudios() {
 
 function playAudio(id) {
   if (!audioOn) return;
-  if (audio) audio.stop();
-  audio = audioContext.createBufferSource();
+  const audio = audioContext.createBufferSource();
   audio.buffer = audios[id];
   audio.connect(audioContext.destination);
   audio.start();

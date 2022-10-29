@@ -14,7 +14,7 @@
 - Animations
   - Restart animations midplay with the help of requestAnimationFrame() (removing and re-adding class is not enough)
 - Keyboard controls
-  - Prevent spamming and playing multiple rounds in one go, by ignoring subsequent keypresses until a flag is cleared
+  - Prevent spamming and playing multiple rounds, by ignoring subsequent keypresses until flag is cleared
 - Audio
   - Use Web Audio API by creating an AudioContext and buffer to eliminate lag
 - Toggles
@@ -22,11 +22,11 @@
 - Table
   - Use HTMLTableElement API to dynamically build table
   - Rounded table borders require matching styling on its outer \<th\> and \<td\> corners
-- Event listeners
-  - Respond to various event types (ie. click, change, mouseover, keydown, animationend, resize)
-- :hover
+- Hover
   - Hover is generally applicable to mouse, but not touch (triggers on tap) and keyboard (N/A, simulate by adding a class)
     - Use timeout to add slight delay, so hover styles have time to play upon touch taps and key presses
+- iOS mobile issue: double tap required to click on some elements with hover (see [this](https://stackoverflow.com/questions/32371431/hover-on-ios-mobile-devices-turns-into-double-touch-instead-of-hover))
+  - Solution: only apply hover to nontouch devices, by targeting with @media (pointer: fine)
 
 ## Image/Audio Credits
 - [See list](./credits.md)
